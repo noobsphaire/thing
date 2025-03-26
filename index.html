@@ -219,7 +219,26 @@
   </main>
 
   <script>
-    // JavaScript content from main.js
+    // Function to render cards from localStorage
+    function renderCards() {
+      const cardContainer = document.getElementById('cards-container');
+      cardContainer.innerHTML = ''; // Clear existing cards
+
+      const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+      submissions.forEach(submission => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${submission.name}</h3>
+          <p>Subject: ${submission.subject}</p>
+          <p>File: ${submission.fileName}</p>
+          <a href="${submission.fileUrl}" download="${submission.fileName}" class="btn">Download</a>
+        `;
+        cardContainer.appendChild(card);
+      });
+    }
+
+    // Event listener for form submission
     document.getElementById('upload-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -228,19 +247,22 @@
       const file = document.getElementById('file').files[0];
 
       if (name && subject && file) {
-        const cardContainer = document.getElementById('cards-container');
+        const fileUrl = URL.createObjectURL(file);
+        const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
 
-        // Create a new card
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3>${name}</h3>
-          <p>Subject: ${subject}</p>
-          <p>File: ${file.name}</p>
-          <a href="${URL.createObjectURL(file)}" download="${file.name}" class="btn">Download</a>
-        `;
+        // Add new submission to the array
+        submissions.push({
+          name,
+          subject,
+          fileName: file.name,
+          fileUrl
+        });
 
-        cardContainer.appendChild(card);
+        // Save updated submissions to localStorage
+        localStorage.setItem('submissions', JSON.stringify(submissions));
+
+        // Re-render the cards
+        renderCards();
 
         // Clear the form
         document.getElementById('upload-form').reset();
@@ -253,6 +275,9 @@
     document.getElementById('theme-toggle').addEventListener('click', function () {
       document.body.classList.toggle('dark-mode');
     });
+
+    // Render cards on page load
+    document.addEventListener('DOMContentLoaded', renderCards);
   </script>
 </body>
 </html>
