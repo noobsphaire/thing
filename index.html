@@ -4,8 +4,179 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homework Submission App</title>
-  <link rel="stylesheet" href="styles/main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS content from main.css */
+    :root {
+      --background-color: #f9f9f9;
+      --text-color: #333;
+      --card-background: white;
+      --button-background: #e0e0e0;
+      --button-hover: #c0c0c0;
+      --header-background: #f0f0f0;
+      --header-text-color: #333;
+    }
+
+    body.dark-mode {
+      --background-color: #121212;
+      --text-color: #f9f9f9;
+      --card-background: #1e1e1e;
+      --button-background: #444;
+      --button-hover: #666;
+      --header-background: #2c2c2c;
+      --header-text-color: #f9f9f9;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    header {
+      background-color: var(--header-background);
+      color: var(--header-text-color);
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    header nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header nav a, header nav button {
+      color: var(--header-text-color);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--button-background);
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    header nav button:hover, header nav a:hover {
+      background-color: var(--button-hover);
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      background: var(--card-background);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    input[type="text"]:focus, input[type="file"]:focus {
+      border-color: var(--button-background);
+      outline: none;
+    }
+
+    .btn {
+      background-color: var(--button-background);
+      color: var(--text-color);
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--button-hover);
+    }
+
+    #cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--card-background);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h3 {
+      margin: 0;
+    }
+
+    .card p {
+      margin: 0.5rem 0;
+    }
+
+    .card button {
+      background-color: var(--button-background);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .card button:hover {
+      background-color: var(--button-hover);
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -47,6 +218,41 @@
     </section>
   </main>
 
-  <script src="scripts/main.js"></script>
+  <script>
+    // JavaScript content from main.js
+    document.getElementById('upload-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const subject = document.getElementById('subject').value;
+      const file = document.getElementById('file').files[0];
+
+      if (name && subject && file) {
+        const cardContainer = document.getElementById('cards-container');
+
+        // Create a new card
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${name}</h3>
+          <p>Subject: ${subject}</p>
+          <p>File: ${file.name}</p>
+          <a href="${URL.createObjectURL(file)}" download="${file.name}" class="btn">Download</a>
+        `;
+
+        cardContainer.appendChild(card);
+
+        // Clear the form
+        document.getElementById('upload-form').reset();
+      } else {
+        alert('Please fill out all fields and upload a file.');
+      }
+    });
+
+    // Theme toggle functionality
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      document.body.classList.toggle('dark-mode');
+    });
+  </script>
 </body>
 </html>
