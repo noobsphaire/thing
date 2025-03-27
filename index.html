@@ -180,7 +180,7 @@
 </head>
 <body>
   <header>
-    <h1>homework atar</h1>
+    <h1>Homework Submission App</h1>
     <nav>
       <a href="#" id="home-button">Home</a>
       <button id="theme-toggle" class="btn">Toggle Dark Mode</button>
@@ -219,7 +219,7 @@
   </main>
 
   <script>
-    const API_URL = 'https://your-backend.onrender.com'; // Replace with your Render backend URL
+    const API_URL = '/api'; // Use relative paths for Vercel serverless functions
 
     // Function to render cards from the server
     async function renderCards() {
@@ -237,7 +237,7 @@
             <h3>${submission.name}</h3>
             <p>Subject: ${submission.subject}</p>
             <p>File: ${submission.file_name}</p>
-            <a href="${API_URL}${submission.file_url}" download="${submission.file_name}" class="btn">Download</a>
+            <a href="/uploads/${submission.file_url}" download="${submission.file_name}" class="btn">Download</a>
           `;
           cardContainer.appendChild(card);
         });
