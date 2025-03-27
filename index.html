@@ -6,7 +6,6 @@
   <title>Homework Submission App</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* CSS content from main.css */
     :root {
       --background-color: #f9f9f9;
       --text-color: #333;
@@ -147,6 +146,9 @@
       width: 250px;
       text-align: center;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
     .card:hover {
@@ -162,18 +164,16 @@
       margin: 0.5rem 0;
     }
 
-    .card button {
+    .card a {
+      text-decoration: none;
+      color: white;
       background-color: var(--button-background);
-      color: var(--text-color);
       padding: 0.5rem 1rem;
-      border: none;
       border-radius: 4px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease;
     }
 
-    .card button:hover {
+    .card a:hover {
       background-color: var(--button-hover);
     }
   </style>
@@ -195,17 +195,17 @@
           <label for="name">Your Name:</label>
           <input type="text" id="name" name="name" placeholder="Enter your name" required>
         </div>
-      
+
         <div class="form-group">
           <label for="subject">Subject:</label>
           <input type="text" id="subject" name="subject" placeholder="Enter the subject" required>
         </div>
-      
+
         <div class="form-group">
           <label for="file">Upload File:</label>
-          <input type="file" id="file" name="file" accept=".html, .pdf, .docx" required>
+          <input type="file" id="file" name="file" accept=".pdf,.html" required>
         </div>
-      
+
         <button type="submit" class="btn">Submit</button>
       </form>
     </section>
@@ -219,55 +219,67 @@
   </main>
 
   <script>
-    // Function to render cards from localStorage
-    function renderCards() {
+    const API_URL = 'https://your-backend.onrender.com'; // Replace with your Render backend URL
+
+    // Function to render cards from the server
+    async function renderCards() {
       const cardContainer = document.getElementById('cards-container');
       cardContainer.innerHTML = ''; // Clear existing cards
 
-      const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
-      submissions.forEach(submission => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3>${submission.name}</h3>
-          <p>Subject: ${submission.subject}</p>
-          <p>File: ${submission.fileName}</p>
-          <a href="${submission.fileUrl}" download="${submission.fileName}" class="btn">Download</a>
-        `;
-        cardContainer.appendChild(card);
-      });
+      try {
+        const response = await fetch(`${API_URL}/submissions`);
+        const submissions = await response.json();
+
+        submissions.forEach(submission => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${submission.name}</h3>
+            <p>Subject: ${submission.subject}</p>
+            <p>File: ${submission.file_name}</p>
+            <a href="${API_URL}${submission.file_url}" download="${submission.file_name}" class="btn">Download</a>
+          `;
+          cardContainer.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Error fetching submissions:', error);
+      }
     }
 
     // Event listener for form submission
-    document.getElementById('upload-form').addEventListener('submit', function (e) {
+    document.getElementById('upload-form').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const name = document.getElementById('name').value;
       const subject = document.getElementById('subject').value;
       const file = document.getElementById('file').files[0];
 
-      if (name && subject && file) {
-        const fileUrl = URL.createObjectURL(file);
-        const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+      if (!name || !subject || !file) {
+        alert('Please fill out all fields and upload a file.');
+        return;
+      }
 
-        // Add new submission to the array
-        submissions.push({
-          name,
-          subject,
-          fileName: file.name,
-          fileUrl
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('subject', subject);
+      formData.append('file', file);
+
+      try {
+        const response = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          body: formData,
         });
 
-        // Save updated submissions to localStorage
-        localStorage.setItem('submissions', JSON.stringify(submissions));
-
-        // Re-render the cards
-        renderCards();
-
-        // Clear the form
-        document.getElementById('upload-form').reset();
-      } else {
-        alert('Please fill out all fields and upload a file.');
+        if (response.ok) {
+          alert('Submission saved!');
+          renderCards(); // Re-render cards after submission
+          document.getElementById('upload-form').reset();
+        } else {
+          const error = await response.json();
+          alert(`Error: ${error.error}`);
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
     });
 
